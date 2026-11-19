@@ -1219,7 +1219,8 @@ function glare(root) {
 /* Magnet: the element eases toward the cursor, then springs back */
 function magnet(inner, o) {
   if (!FX || !FINE || inner._mg) return; inner._mg = 1;
-  const s = Object.assign({ padding: 70, strength: 3.2, stiffness: 170, damping: 16, mass: 1 }, o);
+  // gentle: the button leans a few pixels toward the cursor (React Bits Magnet with a small maxOffset), no more
+  const s = Object.assign({ padding: 36, strength: 10, max: 3, stiffness: 170, damping: 20, mass: 1 }, o);
   const smooth = (a, b, v) => { const t = clamp((v - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
   const cur = { x: 0, y: 0 }, vel = { x: 0, y: 0 }; let ptr = null, raf = 0, last = 0;
   const base = () => { const r = inner.getBoundingClientRect(); return { left: r.left - cur.x, top: r.top - cur.y, width: r.width, height: r.height }; };
@@ -1229,7 +1230,7 @@ function magnet(inner, o) {
     if (ptr) {
       const r = base(), dx = ptr.x - (r.left + r.width / 2), dy = ptr.y - (r.top + r.height / 2);
       const outside = Math.hypot(Math.max(0, Math.abs(dx) - r.width / 2), Math.max(0, Math.abs(dy) - r.height / 2));
-      if (outside <= s.padding) { const pull = 1 - smooth(s.padding * .5, s.padding, outside); target.x = dx / s.strength * pull; target.y = dy / s.strength * pull; }
+      if (outside <= s.padding) { const pull = 1 - smooth(s.padding * .5, s.padding, outside); target.x = dx / s.strength * pull; target.y = dy / s.strength * pull; const len = Math.hypot(target.x, target.y); if (len > s.max) { target.x *= s.max / len; target.y *= s.max / len; } }
     }
     let rest = true;
     for (const k of ["x", "y"]) { vel[k] += ((s.stiffness * (target[k] - cur[k]) - s.damping * vel[k]) / s.mass) * dt; cur[k] += vel[k] * dt; if (Math.abs(target[k] - cur[k]) > .05 || Math.abs(vel[k]) > .05) rest = false; }
