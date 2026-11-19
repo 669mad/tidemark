@@ -800,13 +800,13 @@ main.sub.play { padding-top: calc(var(--nav-h) + 26px); }
 .hl-meter span { display: block; margin-top: 3px; font: 10.5px/1.2 var(--f-num); letter-spacing: .12em; text-transform: uppercase; color: var(--haze); }
 .hl-streak { flex-direction: row !important; align-items: center; gap: 9px; }
 .hl-flame { width: 30px; height: 30px; flex: none; color: var(--haze); transition: color .6s, filter .6s; }
-.hl-table:not([data-mode="daily"]) .hl-flame { color: color-mix(in srgb, #ff7a45 calc(var(--heat) * 100%), var(--gold)); filter: drop-shadow(0 0 calc(4px + var(--heat) * 14px) color-mix(in srgb, #ff7a45 calc(var(--heat) * 100%), var(--gold))); }
+.hl-table[data-view="streak"] .hl-flame { color: color-mix(in srgb, #ff7a45 calc(var(--heat) * 100%), var(--gold)); filter: drop-shadow(0 0 calc(4px + var(--heat) * 14px) color-mix(in srgb, #ff7a45 calc(var(--heat) * 100%), var(--gold))); }
 .hl-table.hot .hl-flame { animation: hlflick 1.1s ease-in-out infinite; transform-origin: 50% 90%; }
 .hl-table.inferno .hl-flame { color: #fff1c6; filter: drop-shadow(0 0 12px #ff8db4) drop-shadow(0 0 22px #ff9f43); }
 @keyframes hlflick { 0%, 100% { transform: scale(1) rotate(-2deg); } 40% { transform: scale(1.08, 1.12) rotate(2deg); } 70% { transform: scale(.97, 1.04) rotate(-1deg); } }
 .hl-rank b { font: 600 16px/1.15 var(--f-sans) !important; letter-spacing: -.01em !important; color: var(--rc) !important; transition: color .6s; }
 .hl-rank span { text-transform: none !important; letter-spacing: .02em !important; }
-.hl-table[data-mode="daily"] .hl-only-classic, .hl-table:not([data-mode="daily"]) .hl-only-daily { display: none; }
+.hl-table[data-view="streak"] .hl-only-ten, .hl-table:not([data-view="streak"]) .hl-only-streak { display: none; }
 .hl-pips { flex-direction: row !important; align-items: center; gap: 6px; }
 .hl-pips i { width: 20px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.13); transition: background .3s, box-shadow .3s; }
 .hl-pips i.ok { background: var(--good); box-shadow: 0 0 10px rgba(70,224,160,.55); }
@@ -925,7 +925,18 @@ main.sub.play { padding-top: calc(var(--nav-h) + 26px); }
 
 /* run over and daily result */
 .hl-over { position: absolute; inset: 0; z-index: 8; display: grid; place-items: center; padding: 18px; overflow-y: auto; overscroll-behavior: contain; border-radius: inherit; background: radial-gradient(70% 60% at 50% 40%, rgba(14,21,38,.6), rgba(4,6,11,.88)); -webkit-backdrop-filter: blur(9px); backdrop-filter: blur(9px); }
+.hl-over[hidden] { display: none; }
 .hl-ov { width: min(560px, 100%); display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+/* the start screen: a lighter veil, so the deck and the empty table show behind it */
+.hl-over.intro { background: radial-gradient(56% 60% at 50% 50%, rgba(8,12,22,.82), rgba(4,6,11,.42) 78%); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+.hl-intro { gap: 14px; }
+.hl-intro-h { margin: 0; font-weight: 600; font-size: clamp(30px, 4.2vw, 50px); line-height: 1.04; letter-spacing: -.04em; text-wrap: balance; }
+.hl-intro-h em { font-family: var(--f-serif); font-style: italic; font-weight: 400; letter-spacing: -.01em; color: var(--gold); }
+.hl-intro-p { margin: 0; max-width: 44ch; color: var(--mist); font-size: 15px; text-wrap: balance; }
+.hl-go { margin-top: 8px; min-width: 230px; }
+.hl-go svg { transition: transform .3s var(--ease); }
+.hl-go:hover svg { transform: translateX(3px); }
+.hl-intro .hl-life b { color: var(--gold); font-weight: 500; }
 .hl-ov .eyebrow { margin: 0; }
 .hl-big { display: flex; flex-direction: column; align-items: center; }
 .hl-big b { font: 500 clamp(66px, 9vw, 110px)/.92 var(--f-num); letter-spacing: -.06em; background: linear-gradient(180deg, #fff 30%, var(--gold) 135%); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -1008,7 +1019,10 @@ main.sub.play { padding-top: calc(var(--nav-h) + 26px); }
   .hl-btn { flex: 1 1 0; min-width: 0; padding: 15px 10px; font-size: 16px; }
   .hl-rankup { top: 70px; }
   .hl-big b { font-size: 64px; }
-  .hl-life, .hl-tap { display: none; }
+  .hl-tap, .hl-ov:not(.hl-intro) > .hl-life { display: none; }
+  .hl-intro-h { font-size: clamp(26px, 8vw, 34px); }
+  .hl-intro-p { font-size: 14px; }
+  .hl-go { min-width: 0; width: 100%; max-width: 300px; }
   .hl-rows { max-height: 132px; grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); }
   .hl-grid i { width: 22px; height: 22px; }
   .hlp-art { min-height: 250px; }
@@ -2826,11 +2840,11 @@ function renderCredits() {
 })();
 
 /* ---------- HIGHER OR LOWER: the value game ----------
-   Two trading cards, one call: is the next item worth more or less? A right call keeps the streak going: the
-   old card goes to the discard pile, the challenger slides over and a new card is dealt face down from the deck
-   and turned over. The values get closer and the items less famous as the streak grows. Daily mode deals the
-   same ten cards to everyone each day, with a result grid to share. Cards use the same 3D engine, foil and
-   card art as the rest of the site. */
+   Two trading cards, one call: is the next item worth more or less than the one before it? Press Start and play.
+   Classic is ten calls with a score at the end, Streak goes on until the first wrong call, and Daily deals the same
+   ten calls to everyone each day. After each call the old card goes to the discard pile, the challenger slides over
+   and a new card is dealt face down from the deck and turned over. The calls get harder as the game goes on.
+   Cards use the same 3D engine, foil and card art as the rest of the site. */
 const HL = (() => {
   const pop = i => (DEM[i.d] || DEM.medium).s * 2 + Math.log10((i.tc || 0) + 1) + (i.v >= 1e4 ? 1 : 0) + (i.hd ? .5 : 0);
   // estimates are left out: the game should teach market prices
@@ -2838,13 +2852,16 @@ const HL = (() => {
   const RANKS = [[0, "Deckhand", "#a5afc4"], [3, "Bosun", "#7dd7a6"], [6, "Navigator", "#5cd9ff"], [10, "First Mate", "#4aa8ff"], [15, "Captain", "#b98cff"], [20, "Commodore", "#ff8db4"], [30, "Admiral", "#ff9f43"], [40, "Fleet Admiral", "#e9c877"], [60, "Sea Legend", "#fff1c6"]];
   const rankOf = s => RANKS.reduce((r, x) => s >= x[0] ? x : r, RANKS[0]);
   const nextRank = s => RANKS.find(x => x[0] > s) || null;
+  // the rank a score out of ten earns
+  const titleOf = sc => RANKS[[0, 0, 0, 1, 1, 2, 3, 4, 6, 7, 8][clamp(Math.round(sc), 0, 10)]];
   const EPOCH = Date.UTC(2026, 10, 19);
   const dayNo = () => Math.max(1, Math.floor((Date.now() - EPOCH) / 864e5) + 1);
   const msToNext = () => 864e5 - (((Date.now() - EPOCH) % 864e5) + 864e5) % 864e5;
   const rng = seed => () => { seed = seed + 0x6d2b79f5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
   // [smallest gap, biggest gap (as a value ratio), how many of the best-known items to draw from]
   const BANDS = [[2.5, 40, 70], [1.7, 6, 115], [1.35, 3, 999], [1.15, 2.2, 999], [1.05, 1.6, 999]];
-  const bandOf = s => BANDS[s < 3 ? 0 : s < 6 ? 1 : s < 10 ? 2 : s < 16 ? 3 : 4];
+  const bandOf = s => BANDS[s < 3 ? 0 : s < 6 ? 1 : s < 10 ? 2 : s < 16 ? 3 : 4];      // Streak: closer as the streak grows
+  const tenBand = r => BANDS[r < 2 ? 0 : r < 4 ? 1 : r < 7 ? 2 : 3];                     // ten calls: easy first, hard last
   const ratio = (a, b) => Math.max(a.v, b.v) / Math.max(1, Math.min(a.v, b.v));
   function pick(a, band, used, rnd) {
     const [lo, hi, n] = band;
@@ -2857,14 +2874,16 @@ const HL = (() => {
     if (!c.length) { const t = Math.sqrt(lo * hi); c = pool.filter(i => i.v !== a.v).sort((x, y) => Math.abs(Math.log(ratio(a, x) / t)) - Math.abs(Math.log(ratio(a, y) / t))).slice(0, 5); }
     return c[Math.floor(rnd() * c.length)] || POOL.find(i => i !== a);
   }
-  function chain(no) {
-    const rnd = rng(no * 7919 + 13), used = new Set();
+  // the eleven cards of a ten-call game: the first card is shown, then each new card is one call
+  function chain(rnd) {
+    const used = new Set();
     let a = POOL[Math.floor(rnd() * Math.min(45, POOL.length))]; used.add(a.n);
     const out = [a];
-    for (let r = 0; r < 10; r++) { const b = pick(a, BANDS[r < 2 ? 0 : r < 4 ? 1 : r < 7 ? 2 : 3], used, rnd); used.add(b.n); out.push(b); a = b; }
+    for (let r = 0; r < 10; r++) { const b = pick(a, tenBand(r), used, rnd); used.add(b.n); out.push(b); a = b; }
     return out;
   }
-  return { POOL, rankOf, nextRank, dayNo, msToNext, bandOf, pick, chain };
+  const daily = no => chain(rng(no * 7919 + 13));
+  return { POOL, rankOf, nextRank, titleOf, dayNo, msToNext, bandOf, pick, chain, daily };
 })();
 const HL_CREST = `<svg class="hl-crest" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="20" cy="20" r="13.5" fill="none" stroke="currentColor" stroke-width=".6" stroke-dasharray="1 2.2" opacity=".7"/><path d="M20 5v30M5 20h30" stroke="rgba(255,255,255,.16)" stroke-width="1"/><path d="M20 7l4 13-4 13-4-13z" fill="#5cd9ff"/><path d="M20 7l4 13h-8z" fill="currentColor"/><path d="M7 27c3-2 5-2 8 0s5 2 8 0 5-2 8 0" fill="none" stroke="#5cd9ff" stroke-width="1.3" stroke-linecap="round"/></svg>`;
 const HL_ICON = {
@@ -2872,7 +2891,14 @@ const HL_ICON = {
   down: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5.5 12.5L12 19l6.5-6.5"/></svg>',
   ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   no: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg>',
+  go: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
   flame: '<svg class="hl-flame" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5c.8 2.9-.5 4.8-2 6.6C8.5 10.9 6.5 12.8 6.5 15.6A5.5 5.5 0 0 0 12 21a5.5 5.5 0 0 0 5.5-5.4c0-2.6-1.3-4.4-2.6-6 .1 1.7-.5 3-1.8 3.6.5-3.6-.1-7.3-1.1-10.7z"/><path fill="#fff6d8" opacity=".85" d="M12 13.2c-.9 1.1-2 2-2 3.5a2 2 0 0 0 4 0c0-1.4-.9-2.4-2-3.5z"/></svg>'
+};
+// what each mode's start screen says
+const HL_MODES = {
+  classic: { tag: "Classic · 10 cards", h: "Ten cards. <em>One call each.</em>", p: "Is each new item worth more or less than the one before it? A wrong call doesn't end the game. Your score comes after the tenth call.", go: "Start game" },
+  streak: { tag: "Streak · no limit", h: "How far can <em>you go?</em>", p: "No card limit. One wrong call ends the run, and the values get closer as your streak grows. Climb from Deckhand to Sea Legend.", go: "Start a run" },
+  daily: { tag: "Daily", h: "Today's <em>ten cards.</em>", p: "Everyone gets the same ten calls today. You get one go, then a result grid to share with your friends.", go: "Play today's ten" }
 };
 function hlCardHTML(i, sealed) {
   const col = holoCol(i);
@@ -2921,7 +2947,7 @@ function hlLoad(i) {
   }
   return hlLoaded.get(i.n);
 }
-// a short burst of paper confetti over a box (new best, rank ups, a great daily)
+// a short burst of paper confetti over a box (a great score, rank ups, a new best)
 function hlConfetti(host, n = 100) {
   if (!FX || !host) return;
   const r = host.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2), c = document.createElement("canvas");
@@ -2955,17 +2981,17 @@ function renderPlay() {
   app.innerHTML = `<section class="hl" id="hl">
     <div class="page-head hl-head">
       <div><div class="eyebrow">The value game</div><h1 class="sec-h">Higher or <em>lower?</em></h1></div>
-      <div class="hl-modes" role="tablist" aria-label="Game mode"><button type="button" role="tab" data-mode="classic">Classic</button><button type="button" role="tab" data-mode="daily">Daily <i>#${HL.dayNo()}</i></button></div>
+      <div class="hl-modes" role="tablist" aria-label="Game mode"><button type="button" role="tab" data-mode="classic">Classic</button><button type="button" role="tab" data-mode="streak">Streak</button><button type="button" role="tab" data-mode="daily">Daily <i>#${HL.dayNo()}</i></button></div>
     </div>
-    <div class="hl-table surf" data-mode="classic">
+    <div class="hl-table surf" data-view="classic">
       <div class="hl-amb" aria-hidden="true">${compassSVG}</div>
       <div class="hl-hud">
-        <div class="hl-meter hl-only-classic">
+        <div class="hl-meter hl-only-streak">
           <div class="hl-streak">${HL_ICON.flame}<div><b class="num" data-k="s">0</b><span>Streak</span></div></div>
           <div><b class="num" data-k="b">0</b><span>Best</span></div>
           <div class="hl-rank"><b data-k="r">Deckhand</b><span data-k="rn"></span></div>
         </div>
-        <div class="hl-meter hl-only-daily">
+        <div class="hl-meter hl-only-ten">
           <div><b class="num" data-k="ds">0</b><span>Right</span></div>
           <div><b class="num" data-k="dr">1/10</b><span>Card</span></div>
           <div class="hl-pips" data-k="pips">${"<i></i>".repeat(10)}</div>
@@ -3001,13 +3027,14 @@ function hlGame(root) {
   const offs = [], on = (el, ev, fn, o) => { el.addEventListener(ev, fn, o); offs.push(() => el.removeEventListener(ev, fn, o)); };
   const wait = ms => new Promise(r => setTimeout(r, ms));
   const stats = Object.assign({ games: 0, right: 0 }, store.get("hl_stats", {}));
-  let best = store.get("hl_best", 0), run = null, busy = false, dead = false, cdTimer = 0;
+  let best = store.get("hl_best", 0), best10 = store.get("hl_best10", null), run = null, busy = false, dead = false, cdTimer = 0;
+  const ten = () => !!run && run.mode !== "streak";
   store.set("hl_seen", 1); $(".tab-dot")?.remove();
   const say = t => { live.textContent = t; };
 
   /* ---- the HUD ---- */
   function hud(pop) {
-    const s = run && run.mode === "classic" ? run.streak : 0, rk = HL.rankOf(s), nx = HL.nextRank(s);
+    const s = run && run.mode === "streak" ? run.streak : 0, rk = HL.rankOf(s), nx = HL.nextRank(s);
     K("s").textContent = s; K("b").textContent = Math.max(best, s);
     K("r").textContent = rk[1]; K("rn").textContent = nx ? `${nx[0] - s} more to ${nx[1]}` : "Top rank";
     table.style.setProperty("--rc", rk[2]);
@@ -3015,18 +3042,21 @@ function hlGame(root) {
     table.classList.toggle("hot", s >= 5); table.classList.toggle("blaze", s >= 10); table.classList.toggle("inferno", s >= 20);
     if (pop && FX) G.fromTo(K("s"), { scale: 1.7, color: "#8dffc9" }, { scale: 1, color: "#f3f6fb", duration: .8, ease: "elastic.out(1, .45)", clearProps: "color" });
   }
-  function hudDaily(pop) {
-    if (!run || run.mode !== "daily") return;
+  function hudTen(pop) {
+    if (!ten()) return;
     const sc = run.res.reduce((a, b) => a + b, 0);
     K("ds").textContent = sc; K("dr").textContent = `${Math.min(10, run.res.length + 1)}/10`;
-    $$("i", K("pips")).forEach((p, k) => { p.className = k < run.res.length ? (run.res[k] ? "ok" : "no") : k === run.res.length ? "cur" : ""; });
-    if (pop && FX) { const p = $$("i", K("pips"))[run.res.length - 1]; if (p) G.fromTo(p, { scaleY: 2.6 }, { scaleY: 1, duration: .6, ease: "elastic.out(1, .4)" }); }
+    $$("i", K("pips")).forEach((p, k) => { p.className = k < run.res.length ? (run.res[k] ? "ok" : "no") : k === run.res.length && run.started ? "cur" : ""; });
+    if (pop && FX) {
+      const p = $$("i", K("pips"))[run.res.length - 1]; if (p) G.fromTo(p, { scaleY: 2.6 }, { scaleY: 1, duration: .6, ease: "elastic.out(1, .4)" });
+      if (run.res[run.res.length - 1]) G.fromTo(K("ds"), { scale: 1.7, color: "#8dffc9" }, { scale: 1, color: "#f3f6fb", duration: .8, ease: "elastic.out(1, .45)", clearProps: "color" });
+    }
   }
   function counts() {
-    const left = run && run.mode === "daily" ? 10 - run.res.length : 0;
-    K("dn").textContent = run && run.mode === "daily" ? `${left} left` : "";
-    $$(".hl-cardback", deck).forEach((c, k, all) => { c.style.visibility = run && run.mode === "daily" && all.length - k > left + 1 ? "hidden" : ""; });
-    K("pn").textContent = pile.children.length > 1 ? `${run && run.mode === "classic" ? run.streak : run ? run.res.length : 0}` : "";
+    const undealt = ten() && run.started ? Math.max(0, 9 - run.res.length) : 99;
+    K("dn").textContent = undealt === 99 ? "" : undealt ? `${undealt} left` : "Last card";
+    $$(".hl-cardback", deck).forEach((c, k, all) => { c.style.visibility = all.length - k > undealt ? "hidden" : ""; });
+    K("pn").textContent = run && run.disc ? String(run.disc) : "";
   }
   function ask() {
     q.innerHTML = `Is ${hlName(run.B)} worth more or less than ${hlName(run.A)}?`;
@@ -3054,7 +3084,7 @@ function hlGame(root) {
     slot.style.setProperty("--glow", holoCol(i));
     hlPaint(cw); T3D.scan(cw);
     // on a hot streak (10+) every new card comes out holographic
-    if (run && run.mode === "classic" && run.streak >= 10) { const f = $(".hl-front", cw); if (!$(".t3d-foil", f)) { f.classList.add("foil-holo"); $(".hl-art", f).insertAdjacentHTML("afterend", '<span class="t3d-foil" aria-hidden="true"></span>'); } }
+    if (run && run.mode === "streak" && run.streak >= 10) { const f = $(".hl-front", cw); if (!$(".t3d-foil", f)) { f.classList.add("foil-holo"); $(".hl-art", f).insertAdjacentHTML("afterend", '<span class="t3d-foil" aria-hidden="true"></span>'); } }
     if (sealed) { cw.classList.add("swipe"); swipe(cw); }
     return cw;
   }
@@ -3089,10 +3119,12 @@ function hlGame(root) {
     });
   }
   function addToPile(ang) {
-    if (!pile.getBoundingClientRect().width) return;
-    const c = document.createElement("i"); c.className = "hl-cardback"; c.style.transform = `rotate(${ang.toFixed(1)}deg)`; c.innerHTML = HL_CREST + "<b>Tidemark</b>";
-    pile.insertBefore(c, K("pn")); while (pile.querySelectorAll(".hl-cardback").length > 6) pile.querySelector(".hl-cardback").remove();
-    if (FX) G.fromTo(c, { scale: 1.08 }, { scale: 1, duration: .35, ease: "power2.out" });
+    if (run) run.disc = (run.disc || 0) + 1;
+    if (pile.getBoundingClientRect().width) {
+      const c = document.createElement("i"); c.className = "hl-cardback"; c.style.transform = `rotate(${ang.toFixed(1)}deg)`; c.innerHTML = HL_CREST + "<b>Tidemark</b>";
+      pile.insertBefore(c, K("pn")); while (pile.querySelectorAll(".hl-cardback").length > 6) pile.querySelector(".hl-cardback").remove();
+      if (FX) G.fromTo(c, { scale: 1.08 }, { scale: 1, duration: .35, ease: "power2.out" });
+    }
     counts();
   }
   function slide(cw) {
@@ -3109,7 +3141,7 @@ function hlGame(root) {
   function swipe(cw) {
     const host = $(".hl-card", cw); let d = null;
     host.addEventListener("pointerdown", e => {
-      if (busy || !run || run.over || cw !== run.cwB || (e.pointerType === "mouse" && e.button !== 0)) return;
+      if (busy || !run || run.over || !run.started || cw !== run.cwB || (e.pointerType === "mouse" && e.button !== 0)) return;
       d = { y0: e.clientY, id: e.pointerId, dy: 0, moved: false };
     });
     host.addEventListener("pointermove", e => {
@@ -3169,11 +3201,10 @@ function hlGame(root) {
       });
     });
   }
-  // a "+1" pops out of the revealed value and flies into the streak counter, which bumps when it lands
-  function plusOne(from, land) {
-    const s = K("s");
-    if (!FX || !from || !s.offsetParent) { land(); return; }
-    const tr = table.getBoundingClientRect(), a = from.getBoundingClientRect(), b = s.getBoundingClientRect(), el = document.createElement("span");
+  // a "+1" pops out of the revealed value and flies into the score, which bumps when it lands
+  function plusOne(from, to, land) {
+    if (!FX || !from || !to || !to.offsetParent) { land(); return; }
+    const tr = table.getBoundingClientRect(), a = from.getBoundingClientRect(), b = to.getBoundingClientRect(), el = document.createElement("span");
     el.className = "hl-plus num"; el.textContent = "+1"; el.style.left = (a.left - tr.left + a.width / 2) + "px"; el.style.top = (a.top - tr.top + a.height / 2) + "px"; table.appendChild(el);
     const dx = b.left + b.width / 2 - (a.left + a.width / 2), dy = b.top + b.height / 2 - (a.top + a.height / 2);
     G.set(el, { xPercent: -50, yPercent: -50 });
@@ -3195,48 +3226,80 @@ function hlGame(root) {
   }
 
   /* ---- the game ---- */
-  function start(mode) {
-    if (dead) return;
+  function reset(mode) {
     clearInterval(cdTimer);
     store.set("hl_mode", mode);
     $$(".hl-modes button", root).forEach(b => { const sel = b.dataset.mode === mode; b.classList.toggle("on", sel); b.setAttribute("aria-selected", String(sel)); });
-    table.dataset.mode = mode; table.style.minHeight = "";
-    over.hidden = true; over.innerHTML = "";
+    table.dataset.view = mode; table.style.minHeight = "";
+    over.hidden = true; over.innerHTML = ""; over.className = "hl-over";
     slotA.innerHTML = ""; slotB.innerHTML = ""; $$(".hl-cardback", pile).forEach(c => c.remove());
-    vs.className = "hl-vs"; vs.firstElementChild.textContent = "VS";
+    vs.className = "hl-vs"; vs.firstElementChild.textContent = "VS"; q.innerHTML = "";
     lock(true);
-    if (mode === "daily") {
-      const no = HL.dayNo(), chain = HL.chain(no), sv = store.get("hl_daily", null), res = sv && sv.no === no && Array.isArray(sv.res) ? sv.res.slice(0, 10) : [];
-      run = { mode, no, chain, res, streak: 0, seen: chain.slice(0, res.length + 2) };
-      chain.forEach(hlLoad);
-      if (res.length >= 10) {
-        run.over = true; run.A = chain[9]; run.B = chain[10];
-        run.cwA = place(slotA, run.A, false); run.cwB = place(slotB, run.B, false); $(".hl-val", run.cwB).classList.add(res[9] ? "ok" : "no"); run.cwB.classList.remove("swipe");
-        hud(); hudDaily(); counts(); q.innerHTML = hlCompare(run.A, run.B, false);
-        dailyOver(false); return;
-      }
-      run.A = chain[res.length]; run.B = chain[res.length + 1];
-    } else {
-      run = { mode, streak: 0, used: new Set(), seen: [] };
+  }
+  // sets up a game in the chosen mode; it shows the start screen unless go is true (Play again)
+  function start(mode, go) {
+    if (dead) return;
+    reset(mode);
+    if (mode === "streak") {
+      run = { mode, streak: 0, used: new Set(), seen: [], disc: 0 };
       run.A = HL.POOL[Math.floor(Math.random() * Math.min(50, HL.POOL.length))]; run.used.add(run.A.n);
       run.B = HL.pick(run.A, HL.bandOf(0), run.used, Math.random); run.used.add(run.B.n);
       run.seen.push(run.A, run.B);
+    } else {
+      const daily = mode === "daily", no = HL.dayNo(), chain = daily ? HL.daily(no) : HL.chain(Math.random);
+      const sv = daily ? store.get("hl_daily", null) : null, res = sv && sv.no === no && Array.isArray(sv.res) ? sv.res.slice(0, 10) : [];
+      run = { mode, no, chain, res, disc: 0 };
+      chain.forEach(hlLoad);
+      if (res.length >= 10) {   // today's daily is already played: show its result
+        run.over = run.started = true; run.A = chain[9]; run.B = chain[10];
+        run.cwA = place(slotA, run.A, false); run.cwB = place(slotB, run.B, false); $(".hl-val", run.cwB).classList.add(res[9] ? "ok" : "no");
+        hud(); hudTen(); counts(); q.innerHTML = hlCompare(run.A, run.B, false);
+        tenOver(false); return;
+      }
+      run.A = chain[res.length]; run.B = chain[res.length + 1];
     }
+    hud(); hudTen(); counts();
+    hlLoad(run.A); hlLoad(run.B);
+    if (go) begin(); else intro();
+  }
+  function intro() {
+    const M = HL_MODES[run.mode], resume = run.mode === "daily" && run.res.length > 0;
+    const note = run.mode === "classic" ? (best10 != null ? `Your best: <b class="num">${best10}/10</b>` : "Takes about a minute")
+      : run.mode === "streak" ? (best ? `Your best streak: <b class="num">${best}</b>` : "One wrong call and it's over")
+      : resume ? `You're on call ${run.res.length + 1} of 10` : `Daily #${run.no} · a new one every day at midnight UTC`;
+    over.className = "hl-over intro";
+    over.innerHTML = `<div class="hl-ov hl-intro" role="group" aria-label="${esc(M.tag)}">
+      <div class="eyebrow">${run.mode === "daily" ? `Daily #${run.no}` : M.tag}</div>
+      <h2 class="hl-intro-h">${M.h}</h2>
+      <p class="hl-intro-p">${M.p}</p>
+      <button class="btn primary lg hl-go" type="button" data-go data-glare>${resume ? "Continue" : M.go}${HL_ICON.go}</button>
+      <p class="hl-life">${note}${FINE ? " · or press Enter" : ""}</p>
+    </div>`;
+    over.hidden = false; wire(over);
+    say(`${M.tag}. ${M.p}`);
+    if (FX) { G.fromTo(over, { opacity: 0 }, { opacity: 1, duration: .45, ease: "power2.out" }); G.from($(".hl-intro", over).children, { y: 22, opacity: 0, duration: .7, stagger: .07, delay: .05, ease: "power3.out", clearProps: "transform,opacity" }); }
+    setTimeout(() => { const b = $("[data-go]", over); if (b && !dead && !$(".overlay") && (document.activeElement === document.body || !document.activeElement)) b.focus({ preventScroll: true }); }, 450);
+  }
+  function begin() {
+    if (!run || run.started || run.over || dead) return;
+    run.started = true;
     const token = run;
-    hud(); hudDaily(); counts(); ask();
-    Promise.all([run.A, run.B].map(i => Promise.race([hlLoad(i), wait(800)]))).then(() => {
+    const deal = () => {
       if (dead || run !== token) return;
-      run.cwA = place(slotA, run.A, false); run.cwB = place(slotB, run.B, true);
-      Promise.all([dealIn(run.cwA, .05), dealIn(run.cwB, .26)]).then(() => {
+      over.hidden = true; over.innerHTML = ""; over.className = "hl-over";
+      hudTen(); counts(); ask();
+      Promise.all([run.A, run.B].map(i => Promise.race([hlLoad(i), wait(800)]))).then(() => {
         if (dead || run !== token) return;
-        lock(false); prefetch();
+        run.cwA = place(slotA, run.A, false); run.cwB = place(slotB, run.B, true);
+        Promise.all([dealIn(run.cwA, .05), dealIn(run.cwB, .26)]).then(() => { if (dead || run !== token) return; lock(false); prefetch(); });
       });
-    });
+    };
+    if (FX && !over.hidden) G.to(over, { opacity: 0, duration: .3, ease: "power2.in", onComplete: deal }); else deal();
   }
   function prefetch() {
     if (!run) return;
-    const it = run.mode === "daily" ? run.chain[run.res.length + 2] : HL.pick(run.B, HL.bandOf(run.streak + 1), new Set(run.used), Math.random);
-    if (run.mode === "classic") run.pre = { from: run.B, it };
+    const it = run.mode === "streak" ? HL.pick(run.B, HL.bandOf(run.streak + 1), new Set(run.used), Math.random) : run.chain[run.res.length + 2];
+    if (run.mode === "streak") run.pre = { from: run.B, it };
     if (!it) return;
     hlLoad(it);
     // paint the next card's art while nothing is moving
@@ -3244,25 +3307,26 @@ function hlGame(root) {
     if (face) (window.requestIdleCallback || setTimeout)(() => { if (!dead && face.clientWidth) hlArtFor(Math.round(face.clientWidth * dpr), Math.round(face.clientHeight * dpr), holoCol(it)); });
   }
   function press(dir) {
-    if (busy || !run || run.over) return;
+    if (busy || !run || run.over || !run.started) return;
     const b = $(`.hl-btn[data-g="${dir}"]`, btns);
     if (b && FX) G.fromTo(b, { scale: .93 }, { scale: 1, duration: .5, ease: "back.out(3)" });
     guess(dir);
   }
   async function guess(dir) {
-    if (busy || !run || run.over || !run.cwB) return;
+    if (busy || !run || run.over || !run.started || !run.cwB) return;
     lock(true, dir);
     const token = run, a = run.A, b = run.B, tie = Math.abs(Math.log(Math.max(1, b.v) / Math.max(1, a.v))) < .004;
     const right = tie || (dir > 0 ? b.v > a.v : b.v < a.v);
     await reveal(run.cwB, a, b, right, tie);
     if (dead || run !== token) return;
-    if (run.mode === "classic") {
+    if (right) { stats.right++; store.set("hl_stats", stats); }
+    if (run.mode === "streak") {
       if (right) {
         const was = HL.rankOf(run.streak);
-        run.streak++; stats.right++; store.set("hl_stats", stats);
+        run.streak++;
         if (run.streak > best) { best = run.streak; store.set("hl_best", best); run.newBest = true; }
         const now = HL.rankOf(run.streak);
-        plusOne($(".hl-val b", run.cwB), () => { if (dead || run !== token) return; hud(true); if (now !== was) rankUp(now); });
+        plusOne($(".hl-val b", run.cwB), K("s"), () => { if (dead || run !== token) return; hud(true); if (now !== was) rankUp(now); });
         await wait(FX ? 900 : 1300);
         if (dead || run !== token) return;
         await next();
@@ -3270,22 +3334,24 @@ function hlGame(root) {
         run.over = true; stats.games++; store.set("hl_stats", stats);
         await wait(FX ? 1250 : 1300);
         if (dead || run !== token) return;
-        classicOver(a, b);
+        streakOver(a, b);
       }
-    } else {
-      run.res.push(right ? 1 : 0); store.set("hl_daily", { no: run.no, res: run.res });
-      hudDaily(true);
-      await wait(FX ? 780 : 1300);
-      if (dead || run !== token) return;
-      if (run.res.length >= 10) { run.over = true; dailyOver(true); } else await next();
+      return;
     }
+    run.res.push(right ? 1 : 0);
+    if (run.mode === "daily") store.set("hl_daily", { no: run.no, res: run.res });
+    if (right) plusOne($(".hl-val b", run.cwB), K("ds"), () => { if (!dead && run === token) hudTen(true); }); else hudTen(true);
+    const last = run.res.length >= 10;
+    if (last) { run.over = true; stats.games++; store.set("hl_stats", stats); }
+    await wait(FX ? (last ? 1350 : 900) : 1300);
+    if (dead || run !== token) return;
+    if (last) tenOver(true); else await next();
   }
   async function next() {
     const token = run, oldA = run.cwA, oldB = run.cwB;
     run.A = run.B;
-    if (run.mode === "daily") run.B = run.chain[run.res.length + 1];
-    else { run.B = run.pre && run.pre.from === run.A ? run.pre.it : HL.pick(run.A, HL.bandOf(run.streak), run.used, Math.random); run.used.add(run.B.n); }
-    run.seen.push(run.B);
+    if (run.mode === "streak") { run.B = run.pre && run.pre.from === run.A ? run.pre.it : HL.pick(run.A, HL.bandOf(run.streak), run.used, Math.random); run.used.add(run.B.n); run.seen.push(run.B); }
+    else run.B = run.chain[run.res.length + 1];
     await Promise.race([hlLoad(run.B), wait(600)]);
     if (dead || run !== token) return;
     discard(oldA);
@@ -3315,9 +3381,10 @@ function hlGame(root) {
     }
     setTimeout(() => { const f = $("[data-again], [data-share]", over); if (f && !dead && !$(".overlay")) f.focus({ preventScroll: true }); }, 450);
   }
-  function classicOver(a, b) {
+  function streakOver(a, b) {
     const s = run.streak, rk = HL.rankOf(s), nb = run.newBest && s > 0;
     const seen = [...new Set(run.seen)].sort((x, y) => y.v - x.v);
+    over.className = "hl-over";
     over.innerHTML = `<div class="hl-ov" role="group" aria-label="Run over">
       <div class="eyebrow">${nb ? "New best streak" : "Run over"}</div>
       <div class="hl-big"><b class="num">${s}</b><span>${s === 1 ? "right call" : "right calls"} in a row</span></div>
@@ -3331,69 +3398,86 @@ function hlGame(root) {
     showOver();
     if (nb && s >= 3) setTimeout(() => !dead && hlConfetti(table, 130), 350);
   }
-  function dailyOver(fresh) {
-    const sc = run.res.reduce((a, b) => a + b, 0), word = sc === 10 ? "Flawless" : sc >= 8 ? "Sharp eye" : sc >= 5 ? "Solid" : "Rough seas";
-    over.innerHTML = `<div class="hl-ov" role="group" aria-label="Daily result">
-      <div class="eyebrow">Daily #${run.no} · ${word}</div>
+  // the result of a ten-call game (Classic or Daily)
+  function tenOver(fresh) {
+    const daily = run.mode === "daily", sc = run.res.reduce((x, y) => x + y, 0), t = HL.titleOf(sc);
+    let nb = false;
+    if (!daily && fresh) { nb = best10 != null && sc > best10; if (best10 == null || sc > best10) { best10 = sc; store.set("hl_best10", sc); } }
+    const rows = run.chain.map((i, k) => ({ i, miss: k > 0 && run.res[k - 1] === 0 })).sort((x, y) => y.i.v - x.i.v);
+    over.className = "hl-over";
+    over.innerHTML = `<div class="hl-ov" role="group" aria-label="Result">
+      <div class="eyebrow">${daily ? `Daily #${run.no}` : nb ? "New best score" : "Game over"}</div>
       <div class="hl-big"><b class="num">${sc}</b><span>out of 10</span></div>
-      <div class="hl-grid">${run.res.map(x => `<i class="${x ? "ok" : "no"}"></i>`).join("")}</div>
-      <p class="hl-cd">${fresh ? "Come back tomorrow for a new ten." : "You've played today's ten."} Next daily in <b class="num" data-cd>--:--:--</b></p>
-      <div class="hl-study"><h3>Today's cards<span class="hl-tap"> · tap one to see its page</span></h3><div class="hl-rows" data-lenis-prevent>${run.chain.slice().sort((x, y) => y.v - x.v).map(i => studyRow(i, false)).join("")}</div></div>
-      <div class="hl-acts"><button class="btn primary lg" type="button" data-share data-glare>Share result</button><button class="btn lg" type="button" data-mode="classic">Play Classic</button></div>
+      <div class="hl-grid" role="img" aria-label="${sc} right out of 10">${run.res.map(x => `<i class="${x ? "ok" : "no"}"></i>`).join("")}</div>
+      <div class="hl-rk" style="--rc:${t[2]}"><span>Your rank</span><b>${esc(t[1])}</b></div>
+      <p class="hl-cd">${daily ? `${fresh ? "Come back tomorrow for a new ten." : "You've played today's ten."} Next daily in <b class="num" data-cd>--:--:--</b>` : `Best score <b class="num">${best10}/10</b> · ${stats.games} ${stats.games === 1 ? "game" : "games"} played`}</p>
+      <div class="hl-study"><h3>${daily ? "Today's cards" : "This game's cards"}<span class="hl-tap"> · tap one to see its page</span></h3><div class="hl-rows" data-lenis-prevent>${rows.map(r => studyRow(r.i, r.miss)).join("")}</div></div>
+      <div class="hl-acts">${daily ? `<button class="btn primary lg" type="button" data-share data-glare>Share result</button><button class="btn lg" type="button" data-mode="classic">Play Classic</button>` : `<button class="btn primary lg" type="button" data-again data-glare>Play again</button><button class="btn lg" type="button" data-share>Share</button>`}</div>
     </div>`;
-    say(`Daily done. ${sc} out of 10.`);
+    say(`${daily ? "Daily done." : "Game over."} ${sc} out of 10. Rank: ${t[1]}.`);
     showOver();
-    const el = $("[data-cd]", over);
-    const tick = () => {
-      if (dead || !el.isConnected) { clearInterval(cdTimer); return; }
-      const ms = HL.msToNext(), h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4), s = Math.floor(ms % 6e4 / 1e3);
-      el.textContent = [h, m, s].map(n => String(n).padStart(2, "0")).join(":");
-      if (HL.dayNo() !== run.no) { clearInterval(cdTimer); start("daily"); }
-    };
-    tick(); cdTimer = setInterval(tick, 1000);
-    if (fresh && sc >= 8) setTimeout(() => !dead && hlConfetti(table, 120), 350);
+    if (daily) {
+      const el = $("[data-cd]", over);
+      const tick = () => {
+        if (dead || !el.isConnected) { clearInterval(cdTimer); return; }
+        const ms = HL.msToNext(), h = Math.floor(ms / 36e5), m = Math.floor(ms % 36e5 / 6e4), s = Math.floor(ms % 6e4 / 1e3);
+        el.textContent = [h, m, s].map(n => String(n).padStart(2, "0")).join(":");
+        if (HL.dayNo() !== run.no) { clearInterval(cdTimer); start("daily"); }
+      };
+      tick(); cdTimer = setInterval(tick, 1000);
+    }
+    if (fresh && sc >= 8) setTimeout(() => !dead && hlConfetti(table, sc === 10 ? 190 : 120), 350);
   }
   function share() {
     if (!run) return;
+    const sc = run.res ? run.res.reduce((a, b) => a + b, 0) : 0, grid = run.res ? run.res.map(x => x ? "🟩" : "🟥").join("") : "";
     let text;
-    if (run.mode === "daily") text = `Tidemark Higher or Lower · Daily #${run.no} · ${run.res.reduce((a, b) => a + b, 0)}/10\n${run.res.map(x => x ? "🟩" : "🟥").join("")}\n${SITE}/#play`;
+    if (run.mode === "daily") text = `Tidemark Higher or Lower · Daily #${run.no} · ${sc}/10\n${grid}\n${SITE}/#play`;
+    else if (run.mode === "classic") text = `I scored ${sc}/10 on Tidemark's GPO Higher or Lower\n${grid}\nThink you know your values? ${SITE}/#play`;
     else text = `I got a ${run.streak} streak on Tidemark's GPO Higher or Lower${run.streak >= 10 ? " 🔥" : ""} (best ${best}). Think you know your values? ${SITE}/#play`;
     if (navigator.share && matchMedia("(pointer: coarse)").matches) { navigator.share({ text }).catch(() => {}); return; }
     try { navigator.clipboard.writeText(text).then(() => toast("Copied. Paste it to your friends!"), () => toast("Couldn't copy on this browser")); } catch (e) { toast("Couldn't copy on this browser"); }
   }
 
   on(root, "click", e => {
-    const m = e.target.closest("[data-mode]"); if (m) { if (!(m.classList.contains("on") && run && !run.over && run.mode === m.dataset.mode)) start(m.dataset.mode); return; }
+    // only real mode buttons switch modes (the table itself is not one)
+    const m = e.target.closest("button[data-mode]"); if (m) { if (!(m.classList.contains("on") && run && !run.over && run.mode === m.dataset.mode)) start(m.dataset.mode); return; }
+    if (e.target.closest("[data-go]")) { begin(); return; }
     const g = e.target.closest(".hl-btn"); if (g) { press(+g.dataset.g); return; }
-    if (e.target.closest("[data-again]")) { start("classic"); return; }
+    if (e.target.closest("[data-again]")) { start(run && run.mode === "streak" ? "streak" : "classic", true); return; }
     if (e.target.closest("[data-share]")) share();
   });
   on(document, "keydown", e => {
-    if (dead || !root.isConnected || $(".overlay") || e.ctrlKey || e.metaKey || e.altKey || !over.hidden) return;
+    if (dead || !root.isConnected || $(".overlay") || e.ctrlKey || e.metaKey || e.altKey) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test((e.target && e.target.tagName) || "")) return;
     const k = e.key.toLowerCase();
+    if (!over.hidden) {
+      // Enter or Space starts the game from the start screen
+      if ((k === "enter" || k === " ") && over.classList.contains("intro") && !(e.target.closest && e.target.closest("button, a"))) { e.preventDefault(); begin(); }
+      return;
+    }
     if (k === "arrowup" || k === "w" || k === "h") { e.preventDefault(); press(1); }
     else if (k === "arrowdown" || k === "s" || k === "l") { e.preventDefault(); press(-1); }
   });
   let rz = 0;
   on(window, "resize", () => { clearTimeout(rz); rz = setTimeout(() => !dead && hlPaint(table), 220); });
-  // start once the page has settled in, so the deal is the first thing you see
-  setTimeout(() => start(store.get("hl_mode", "classic") === "daily" ? "daily" : "classic"), FX ? 260 : 0);
+  const saved = store.get("hl_mode", "classic");
+  setTimeout(() => start(HL_MODES[saved] ? saved : "classic"), FX ? 120 : 0);
   return () => { dead = true; clearInterval(cdTimer); clearTimeout(rz); offs.forEach(f => f()); };
 }
 
 /* the game's teaser on the values page */
 function playPromoHTML() {
-  const best = store.get("hl_best", 0), sv = store.get("hl_daily", null), no = HL.dayNo(), done = sv && sv.no === no && Array.isArray(sv.res) && sv.res.length >= 10;
+  const best10 = store.get("hl_best10", null), sv = store.get("hl_daily", null), no = HL.dayNo(), done = sv && sv.no === no && Array.isArray(sv.res) && sv.res.length >= 10;
   const famous = HL.POOL.slice(0, 30).filter(i => i.hd);
   const a = famous[0], b = famous.find(i => i !== a && Math.max(i.v, a.v) / Math.min(i.v, a.v) > 2) || famous[1];
   if (!a || !b) return "";
   return `<section class="sec hlp" id="playpromo"><div class="hlp-in surf" data-sl>
     <div class="hlp-copy">
       <div class="sec-top"><div><div class="eyebrow">New · The value game</div><h2 class="sec-h">Higher or <em>lower?</em></h2>
-      <p class="sec-sub">Two items, one call: is the next one worth more or less? Keep calling it right to climb from Deckhand to Sea Legend, and learn real values as you play.</p></div></div>
+      <p class="sec-sub">Ten cards, one call each: is the next item worth more or less? Get your score out of ten, climb from Deckhand to Sea Legend, and learn real values as you play.</p></div></div>
       <div class="hlp-row"><a class="btn primary lg" href="#play" data-hlmode="classic" data-glare>Play now</a><a class="btn lg" href="#play" data-hlmode="daily">Daily #${no}${done ? ` · ${sv.res.reduce((x, y) => x + y, 0)}/10` : ""}</a></div>
-      <p class="hlp-note">${best ? `Your best streak: <b class="num">${best}</b>` : "No sign-up, nothing to download. One tap to start."}</p>
+      <p class="hlp-note">${best10 != null ? `Your best score: <b class="num">${best10}/10</b>` : "No sign-up, nothing to download. About a minute a game."}</p>
     </div>
     <a class="hlp-art" href="#play" data-hlmode="classic" aria-label="Play Higher or Lower">
       <div class="hlp-slot s0">${hlCardHTML(a, false)}</div>
